@@ -72,15 +72,6 @@ questions = {
 current_question = None
 
 
-@bot.message_handler(commands=['start'])
-def start_command(message):
-    user_id = message.from_user.id
-    bot.send_message(user_id, "Добро пожаловать! Чтобы получить доступ к чату, ответьте на вопрос.")
-
-    # Запускаем вопрос для пользователя
-    start_question(user_id, message.chat.id)  # Передаем ID группы
-
-
 @bot.message_handler(content_types=['new_chat_members'])
 def welcome_new_member(message):
     for new_member in message.new_chat_members:
@@ -140,22 +131,19 @@ def handle_answer(call):
             bot.delete_message(user_id, question_messages[user_id][0])  # Удаляем вопрос из личных сообщений
             del question_messages[user_id]  # Удаляем ID сообщения из словаря
 
-        else:
-            bot.answer_callback_query(call.id, "Не верно! Вы будете удалены из группы.")
-            # Удаляем пользователя из группы
-            bot.kick_chat_member(chat_id, user_id)
+    else:
+        bot.answer_callback_query(call.id, "Не верно! Вы будете удалены из группы.")
+        # Удаляем пользователя из группы
+        bot.kick_chat_member(chat_id, user_id)
 
-            # Удаляем сообщение с вопросом (если оно еще существует)
-            if user_id in question_messages:
-                bot.delete_message(user_id, question_messages[user_id][0])
-                del question_messages[user_id]  # Удаляем ID сообщения из словаря
-
+        # Удаляем сообщение с вопросом (если оно еще существует)
+        if user_id in question_messages:
+            bot.delete_message(user_id, question_messages[user_id][0])
+            del question_messages[user_id]  # Удаляем ID сообщения из словаря
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
     user_id = message.from_user.id
     if user_id in user_access and not user_access[user_id]['vhod']:
         if not notification_sent[user_id]:
-            bot.send_message(user_id,
-                             'Вы находитесь в режиме наблюдателя. Пожалуйста, ответьте на вопрос, чтобы получить доступ к отправке сообщений.')
-            notification_sent[user_id] = True  # Помечаем уведомление как отправленное
+            bot.send_message(user_id,'Вы находитесь в режиме наблюдателя.')
 bot.polling(none_stop=True)
