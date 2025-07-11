@@ -21,6 +21,12 @@ bot = telebot.TeleBot('7905486303:AAH7VdvwWzp4eIeq3T30uXmPMDeLTSIlN5A')
 ADMIN_ID = 5587077591  # ID администратора
 
 
+# Функция для удаления сообщения через 5 секунд
+def delete_message(chat_id, message_id):
+    time.sleep(5)
+    bot.delete_message(chat_id, message_id)
+
+
 # Команда для бана пользователя
 @bot.message_handler(commands=['ban'])
 def ban_user(message):
