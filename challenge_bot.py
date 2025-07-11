@@ -15,8 +15,8 @@ from telebot.types import Message
 import time
 import threading
 
-API_TOKEN = '7514726072:AAEmjnZbjRmyj6dfoTsYu1ut6jZ6zpFIh50'
-bot = telebot.TeleBot('7514726072:AAEmjnZbjRmyj6dfoTsYu1ut6jZ6zpFIh50')
+API_TOKEN = '7905486303:AAH7VdvwWzp4eIeq3T30uXmPMDeLTSIlN5A'
+bot = telebot.TeleBot('7905486303:AAH7VdvwWzp4eIeq3T30uXmPMDeLTSIlN5A')
 
 ADMIN_ID = 5587077591  # ID администратора
 
