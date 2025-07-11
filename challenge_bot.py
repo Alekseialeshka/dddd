@@ -15,16 +15,10 @@ from telebot.types import Message
 import time
 import threading
 
-API_TOKEN = '7905486303:AAH7VdvwWzp4eIeq3T30uXmPMDeLTSIlN5A'
-bot = telebot.TeleBot('7905486303:AAH7VdvwWzp4eIeq3T30uXmPMDeLTSIlN5A')
+API_TOKEN = '7514726072:AAEmjnZbjRmyj6dfoTsYu1ut6jZ6zpFIh50'
+bot = telebot.TeleBot('7514726072:AAEmjnZbjRmyj6dfoTsYu1ut6jZ6zpFIh50')
 
 ADMIN_ID = 5587077591  # ID администратора
-
-
-# Функция для удаления сообщения через 5 секунд
-def delete_message(chat_id, message_id):
-    time.sleep(5)
-    bot.delete_message(chat_id, message_id)
 
 
 # Команда для бана пользователя
@@ -51,6 +45,7 @@ def ban_user(message):
         bot.reply_to(message, "Пожалуйста, ответьте на сообщение пользователя, которого вы хотите забанить.")
 
 
+
 # Включаем логирование
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -62,11 +57,11 @@ notification_sent = {}
 # Словарь для хранения ID сообщений с вопросами
 question_messages = {}
 
-# Вопросы и правильные ответы
+# Вопросы и правильные ответы (правильный ответ хранится отдельно)
 questions = {
-    'Сколько будет 2 + 2?': ['4', '3', '5', '6'],
-    'Какой цвет у неба?': ['Синий', 'Зелёный', 'Красный', 'Жёлтый'],
-    'Сколько дней в неделе?': ['7', '6', '5', '8']
+    'Сколько будет 2 + 2?': ('4', ['3', '5', '6']),
+    'Какой цвет у неба?': ('Синий', ['Зелёный', 'Красный', 'Жёлтый']),
+    'Сколько дней в неделе?': ('7', ['6', '5', '8'])
 }
 
 current_question = None
@@ -76,7 +71,7 @@ current_question = None
 def welcome_new_member(message):
     for new_member in message.new_chat_members:
         welcome_msg = bot.send_message(message.chat.id,
-                                       f'Добро пожаловать, {new_member.first_name}! Вы сейчас в режиме наблюдателя, чтобы писать что-то в этой группе, авторизуйтесь через нашего бота: @Tesssttbbot.')
+                                       f'Добро пожаловать, {new_member.first_name}! Вы сейчас в режиме наблюдателя, чтобы писать что-то в этой группе, авторизуйтесь через нашего бота: @Tesssttbbot, (ЕСЛИ ВЫ ЭТО НЕ СДЕЛАЕТЕ, ВЫ НЕ СМОЖЕТЕ ПИСАТЬ В ЧАТ)')
 
         # Запускаем поток для удаления сообщения через 5 секунд
         threading.Thread(target=delete_welcome_message, args=(message.chat.id, welcome_msg.message_id)).start()
@@ -93,17 +88,18 @@ def welcome_new_member(message):
 
 
 def delete_welcome_message(chat_id, message_id):
-    time.sleep(15)  # Задержка на 5 секунд
+    time.sleep(20)  # Задержка на 5 секунд
     bot.delete_message(chat_id, message_id)  # Удаляем сообщение
 
 
 def start_question(user_id, chat_id):
     global current_question
     question_text = choice(list(questions.keys()))
-    correct_answer = questions[question_text][0]  # Первый элемент - правильный ответ
-    answers = questions[question_text]  # Все ответы для текущего вопроса
+    correct_answer, wrong_answers = questions[question_text]  # Получаем правильный ответ и все неправильные варианты
 
-    shuffle(answers)  # Перемешиваем ответы
+    # Создаем список вариантов ответов, включая только один правильный ответ
+    answers = wrong_answers + [correct_answer]
+    shuffle(answers)  # Перемешиваем варианты ответов
 
     markup = types.InlineKeyboardMarkup()
     for answer in answers:
@@ -136,14 +132,12 @@ def handle_answer(call):
         # Удаляем пользователя из группы
         bot.kick_chat_member(chat_id, user_id)
 
-        # Удаляем сообщение с вопросом (если оно еще существует)
+        # Отправляем уведомление о том, что пользователь был исключён
+        bot.send_message(chat_id,
+                         f"Пользователь {call.from_user.first_name} был исключён из группы за неправильный ответ.")
+
+        # Удаляем сообщение с вопросом
         if user_id in question_messages:
-            bot.delete_message(user_id, question_messages[user_id][0])
+            bot.delete_message(user_id, question_messages[user_id][0])  # Удаляем вопрос из личных сообщений
             del question_messages[user_id]  # Удаляем ID сообщения из словаря
-@bot.message_handler(func=lambda message: True)
-def handle_message(message):
-    user_id = message.from_user.id
-    if user_id in user_access and not user_access[user_id]['vhod']:
-        if not notification_sent[user_id]:
-            bot.send_message(user_id,'Вы находитесь в режиме наблюдателя.')
 bot.polling(none_stop=True)
