@@ -77,7 +77,7 @@ current_question = None
 def welcome_new_member(message):
     for new_member in message.new_chat_members:
         welcome_msg = bot.send_message(message.chat.id,
-                                       f'Добро пожаловать, {new_member.first_name}! Вы сейчас в режиме наблюдателя, чтобы писать что-то в этой группе, авторизуйтесь через нашего бота: @Tesssttbbot, (ЕСЛИ ВЫ ЭТО НЕ СДЕЛАЕТЕ, ВЫ НЕ СМОЖЕТЕ ПИСАТЬ В ЧАТ)')
+                                       f'Добро пожаловать, {new_member.first_name}! Вы сейчас в режиме наблюдателя, чтобы писать что-то в этой группе, авторизуйтесь через нашего бота: @antispammpsellers_bot, (ЕСЛИ ВЫ ЭТО НЕ СДЕЛАЕТЕ, ВЫ НЕ СМОЖЕТЕ ПИСАТЬ В ЧАТ)')
 
         # Запускаем поток для удаления сообщения через 5 секунд
         threading.Thread(target=delete_welcome_message, args=(message.chat.id, welcome_msg.message_id)).start()
